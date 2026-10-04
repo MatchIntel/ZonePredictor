@@ -1,0 +1,1 @@
+{"name":"zone-predictor","version":"1.0.0","private":true,"type":"module","description":"Client-side Fortnite map zone construction tool","scripts":{"start":"python3 -m http.server 8080 --directory dist","check":"node --check dist/app.js && node --check dist/detection.js && node --check dist/geometry.js && node --check dist/worker.js"}}
