@@ -1,55 +1,56 @@
-# Zone Predictor
+# Zone Predictor 1.1
 
-A complete, dependency-free browser website for Liam's Fortnite zone construction method. Includes the original example map, generated transparent logo, and source code. Processing stays in the browser; there is no account, backend, paid API, or API key required by the app.
+A complete browser website that automatically constructs a Fortnite zone prediction when a map screenshot is uploaded, dropped, or pasted. Includes a generated transparent logo and full source. All screenshot analysis happens locally in the browser. No API key or Python required.
 
-## Open without installing anything
+## Railway / GitHub
 
-Double-click `Zone-Predictor.html` in this download. It is a self-contained copy of the app with its logo and example embedded. Automatic analysis runs in-page in this version; all editing and PNG export features remain available.
+1. Extract this package and upload the CONTENTS of the Zone-Predictor folder to your GitHub repository. `package.json`, `server.js`, and `dist/` should be at the repository root.
+2. Connect that repository to Railway.
+3. Use `npm start` as the Start Command. Clear an old custom command containing `python3` if one was set.
+4. Deploy, then generate a Railway domain for the service.
 
-## Run the modular source locally
+The app uses the built-in Node HTTP server and binds to `0.0.0.0` on `process.env.PORT` (8080 for local use). The package requires Node 20 or newer and has zero external dependencies. No build command is necessary. If keeping the files inside a repository subfolder, set Railway's Root Directory to that folder.
 
-Requires Python 3 (or any static web server):
+The `npm warn config production` notice is not the crash. The old start command called Python in a container that did not include Python; version 1.1 replaces it with `node server.js`.
+
+## Run locally
 
 ```sh
-cd zone-predictor
-python3 -m http.server 8080 --directory dist
+npm start
 ```
 
-Open http://localhost:8080. Do not open index.html with file:// because browser security can block ES modules and the analysis worker. Alternatively run `npm start` if Node and Python are installed.
+Open http://localhost:8080. Alternatively double-click the included `Zone-Predictor.html`, a self-contained version requiring no installation. The portable version runs analysis in-page; the hosted modular version uses a background worker.
 
-## Use
+## Automatic workflow
 
-1. Upload a PNG, JPG, WebP, or BMP screenshot, drag it into the map, or paste an image from your clipboard.
-2. The app attempts to detect the white second-zone circle and estimate the ocean direction. Always verify the result. Drag the cyan center or edge handles, or enter the circle coordinates.
-3. Choose a compass direction, adjust the angle, or choose Pick ocean on map and click toward the coast.
-4. Download prediction exports a full-resolution PNG. Toggle Guides before export to include or omit construction lines. Editor handles never appear in exports.
+Copy an actual image/screenshot and press Ctrl+V (Cmd+V on Mac), drop it on the map, or upload a PNG, JPG, WebP, or BMP. Copying a file name or an image URL is not the same as copying its image bytes.
 
-The included example opens with the same center (421,467), white radius 244px, and northwest angle 225° used in the chat example.
+The app automatically detects the white zone, looks for the surrounding storm-circle alignment, chooses the ocean-facing end of the diameter, and draws the red prediction. Optional correction controls remain collapsed under Fine-tune if needed. Download prediction exports the original-resolution screenshot with its red outline. Guides can be toggled into the export; editor handles never appear in it.
 
-## Exact geometry
+No fabricated prediction is shown after failed automatic analysis. The interface explains the failure and opens the optional controls. Blurry-but-usable boundaries are labeled as estimated. Automatic screenshot interpretation can need a correction; the geometry itself is deterministic.
 
-For white circle center C and radius R, let u be a unit vector pointing toward the chosen ocean side. The two marks are A=C+(R/4)u and B=C-(R/4)u. The prediction is centered at A with radius R/2, so B lies exactly on its edge. The diameter extends from C-Ru to C+Ru. This is deterministic geometry, not access to Fortnite's internal zone randomization.
+## Exact method
 
-## Automatic analysis
+For white circle center C and radius R, u is a unit vector pointing toward the chosen ocean side. The marks are A=C+(R/4)u and B=C-(R/4)u. The red prediction is centered at A with radius R/2, so B lies exactly on its edge. The diameter is C-Ru to C+Ru.
 
-`detection.js` uses neutral bright pixels and a seeded RANSAC circle fit scored across 144 perimeter samples. It processes a reduced-resolution copy of the screenshot. Ocean estimation filters narrow rivers, excludes enclosed lakes where possible, and scores nearby connected blue/cyan water around the white circle. Labels, snow, overlays, cropped circles, unusual colors, or many other white shapes can confuse either estimate. Manual handles and direction controls remain available, and unclear detections show an actionable message. The analysis runs in `worker.js` when supported, with an in-page fallback.
+## Image analysis
 
-## Files
+This version uses local computer vision, not a cloud language model. Circle detection fits neutral bright and line-contrast pixels with seeded RANSAC and checks perimeter coverage. Storm segmentation fits the surrounding zone where visible, providing a natural diagonal axis. Broad-water segmentation then chooses the ocean-facing end; when storm alignment is unavailable, nearby ocean pixels supply the direction. Narrow rivers and enclosed lakes are filtered where possible.
 
-- `dist/index.html`: full accessible interface
-- `dist/styles.css`: responsive theme
-- `dist/app.js`: uploads, state, map editing, export, clipboard, and optional WebMCP tool
-- `dist/geometry.js`: pure construction geometry
-- `dist/detection.js`: image-based circle/ocean analysis
+No screenshot is uploaded to a server. No account, API subscription, or API key is required for this analysis. Fortnite's actual next zone remains uncertain.
+
+## Source
+
+- `server.js`: dependency-free Node HTTP server compatible with Railway
+- `dist/index.html`, `dist/styles.css`: responsive interface
+- `dist/app.js`: automatic pipeline, uploads, clipboard, optional editing, export
+- `dist/geometry.js`: exact construction
+- `dist/detection.js`: circle, storm, and ocean image analysis
 - `dist/worker.js`: background analysis
-- `dist/assets/`: example map, logo PNG, and favicon SVG
-
-## Hosting
-
-Serve `dist/` using any static host. All files use relative URLs. No install or build is needed. PNG exports preserve the input image's pixel dimensions. Uploaded images are held only in memory and are not sent to a server.
-
-This is an independent geometric tool and is not affiliated with Epic Games. Predictions are estimates; next-zone placement is not guaranteed.
+- `dist/assets/`: logo, favicon, example screenshot
 
 ## Verification
 
-The included example circle fit was checked against its known center and radius (within about 2 pixels). The prediction geometry was verified across compass directions and a custom angle, including the inland-edge constraint. JavaScript syntax and local asset references were checked. Interactive browser QA and validation in a native WebMCP browser were unavailable in this build environment; the optional browser-agent integration is feature-detected and does not affect the app in ordinary browsers.
+The Node server was started with an assigned PORT and checked for HTML, JavaScript modules, logo, HEAD, missing files, and unsupported methods. Automatic analysis was checked with three supplied screenshots, including a blurry example. The edge/center geometric relationship and JavaScript syntax were checked. Native WebMCP/browser UI validation was unavailable; its optional integration is feature-detected and does not affect ordinary browsers.
+
+Independent tool; not affiliated with Epic Games.
