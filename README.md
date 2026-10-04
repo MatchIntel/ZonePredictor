@@ -1,4 +1,4 @@
-# Zone Predictor 1.1
+# Zone Predictor 1.2
 
 A complete browser website that automatically constructs a Fortnite zone prediction when a map screenshot is uploaded, dropped, or pasted. Includes a generated transparent logo and full source. All screenshot analysis happens locally in the browser. No API key or Python required.
 
@@ -20,6 +20,10 @@ npm start
 ```
 
 Open http://localhost:8080. Alternatively double-click the included `Zone-Predictor.html`, a self-contained version requiring no installation. The portable version runs analysis in-page; the hosted modular version uses a background worker.
+
+## Interface
+
+The app opens empty with a single upload area. No example image is included or loaded. Results and optional adjustments appear after an image is uploaded.
 
 ## Automatic workflow
 
@@ -47,7 +51,7 @@ No screenshot is uploaded to a server. No account, API subscription, or API key 
 - `dist/geometry.js`: exact construction
 - `dist/detection.js`: circle, storm, and ocean image analysis
 - `dist/worker.js`: background analysis
-- `dist/assets/`: logo, favicon, example screenshot
+- `dist/assets/`: logo and favicon
 
 ## Verification
 
